@@ -1,0 +1,26 @@
+{
+  "name": "three-js-project-site",
+  "version": "1.0.0",
+  "description": "three js site",
+  "author": "Juhair Islam",
+  "contributors": [
+    {
+      "name": "juhair-cupcake",
+      "email": "juhair98@protonmail.com",
+      "url": "https://juhair.is-a.dev/"
+    }
+  ],
+  "main": "./src/main.js",
+  "scripts": {
+    "start": "esbuild --bundle src/main.js --outfile=static/main.js --servedir=static",
+    "build": "esbuild src/main.js --bundle --minify --format=iife --outfile=static/main.js",
+    "bundle": "npm run build && zip -r dist/three_js_project_juhair.zip dist -x \"**/.DS_Store\""
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  },
+  "dependencies": {
+    "lil-gui": "^0.20.0",
+    "three": "^0.170.0"
+  }
+}
