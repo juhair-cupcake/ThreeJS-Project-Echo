@@ -8,7 +8,7 @@ import GUI from "lil-gui";
  */
 // Debug
 const gui = new GUI({
-  title: "Debuger GUI",
+  title: "Debuger",
 }).close();
 const earthGui = gui.addFolder("Earth Control").close();
 const earthPositionGui = earthGui.addFolder("Earth Position").close();
@@ -194,7 +194,9 @@ const tick = () => {
   timer.update();
   // Update controls
   // controls.update();
-  earth.rotation.y = (Math.PI / 2) * (timer._elapsed / 3000);
+
+  //animation loop
+  earth.rotation.y = 2.5 + (Math.PI / 2) * (timer._elapsed / 3000);
 
   // Render
   renderer.render(scene, camera);
