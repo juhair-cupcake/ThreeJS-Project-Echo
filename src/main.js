@@ -60,7 +60,7 @@ earthPositionGui.add(earth.position, "x").min(0).max(10).step(0.001).name("X");
 earthPositionGui.add(earth.position, "y").min(0).max(10).step(0.001).name("Y");
 earthPositionGui.add(earth.position, "z").min(0).max(10).step(0.001).name("Z");
 earthRotateGui.add(earth.rotation, "x").min(-1).max(1).step(0.001).name("X");
-// earthRotateGui.add(earth.rotation, "y").min(0).max(10).step(0.001).name("Y");
+earthRotateGui.add(earth.rotation, "y").min(-1).max(1).step(0.001).name("Y");
 earthRotateGui.add(earth.rotation, "z").min(-1).max(1).step(0.001).name("Z");
 
 /**
@@ -195,7 +195,19 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  */
 const timer = new Timer();
 let animStart = false;
+let animEarthPos = false;
 let earthYrotSpeed = 0.01;
+
+const moveOn = (currentPos, endPos, changes = 0.07) => {
+  const posChange = endPos > currentPos ? !0 : !!0;
+  const diff = Math.abs(currentPos - endPos);
+
+  if (diff > changes) {
+    return (currentPos += posChange ? +changes : -changes);
+  } else {
+    return endPos;
+  }
+};
 
 const tick = () => {
   // Timer
@@ -205,16 +217,27 @@ const tick = () => {
 
   //animation
   if (animStart) {
-    earthPos.x < 6.5 ? (earthPos.x += 0.05) : true;
-    earthPos.y > 4.85 ? (earthPos.y -= 0.05) : true;
-    earthPos.z > 1.1 ? (earthPos.z -= 0.05) : true;
+    earthPos.x = moveOn(earthPos.x, 6.5);
+    earthPos.y = moveOn(earthPos.y, 4.85);
+    earthPos.z = moveOn(earthPos.z, 1.1);
 
-    earthRot.x > -0.3 ? (earthRot.x -= 0.05) : true;
-    earthRot.z > -0.09 ? (earthRot.z -= 0.05) : true;
+    earthRot.x = moveOn(earthRot.x, -0.3);
+    earthRot.z = moveOn(earthRot.z, -0.09);
 
     earth.position.set(earthPos.x, earthPos.y, earthPos.z);
     earth.rotation.x = earthRot.x;
     earth.rotation.z = earthRot.z;
+  } else if (animEarthPos) {
+    earthPos.x = moveOn(earthPos.x, 5);
+    earthPos.y = moveOn(earthPos.y, 4.5);
+    earthPos.z = moveOn(earthPos.z, 2.5);
+
+    earthRot.x = moveOn(earthRot.x, -0.5);
+    earthRot.y = moveOn(earthRot.y, 3.396);
+    earthRot.z = moveOn(earthRot.z, 0);
+
+    earth.position.set(earthPos.x, earthPos.y, earthPos.z);
+    earth.rotation.set(earthRot.x, earthRot.y, earthRot.z);
   }
 
   //earth rotation animation
@@ -231,27 +254,54 @@ tick();
 
 //anim
 setTimeout(() => {
+  window.scrollTo(0, 0);
   document.body.classList.add("active");
-  animStart = true;
-  earthYrotSpeed = 0.018;
-
   orangeLight.intensity = 0.5;
   followLight.intensity = 3;
+  earthYrotSpeed = 0.018;
 
+  animStart = true;
   setTimeout(() => {
     animStart = false;
+
+    //mouse
+    document.body.addEventListener(
+      "mousemove",
+      (e) => {
+        let x = (e.x * 5) / window.innerWidth - 2.5;
+        let y = ((e.y * 5) / window.innerHeight - 2.5) * -1;
+
+        followLight.position.x = x;
+        followLight.position.y = y;
+      },
+      false
+    );
+    //scroll
+    window.addEventListener("scroll", () => {
+      if (
+        document.querySelector(".location-wrapper > h3") &&
+        document.querySelector(".location-wrapper > h3").getBoundingClientRect()
+          .bottom < window.innerHeight
+      ) {
+        earthYrotSpeed = 0;
+
+        if (!animEarthPos) {
+          document.querySelector("section.footer").scrollIntoView();
+          animEarthPos = true;
+          setTimeout(() => {
+            animEarthPos = false;
+          }, 10000);
+        }
+      } else {
+        earthYrotSpeed = 0.018;
+        if (animEarthPos) {
+          animEarthPos = false;
+          animStart = true;
+          setTimeout(() => {
+            animStart = false;
+          }, 1000);
+        }
+      }
+    });
   }, 1000);
-}, 2000);
-
-document.body.addEventListener(
-  "mousemove",
-  (e) => {
-    let x = (e.x * 5) / window.innerWidth - 2.5;
-    let y = ((e.y * 5) / window.innerHeight - 2.5) * -1;
-
-    followLight.position.x = x;
-    followLight.position.y = y;
-    console.log(x, y);
-  },
-  false
-);
+}, 2345);
