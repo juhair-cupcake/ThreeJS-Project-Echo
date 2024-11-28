@@ -30,6 +30,8 @@ const textureLoader = new THREE.TextureLoader();
 const earthTexure = textureLoader.load("./textures/world.png");
 earthTexure.colorSpace = THREE.SRGBColorSpace;
 
+let earthPos = { x: 5, y: 5, z: 1.8 };
+let earthRot = { x: 0, y: 2.5, z: 0 };
 const earth = new THREE.Mesh(
   new THREE.SphereGeometry(1, 64, 64),
   new THREE.MeshStandardMaterial({
@@ -39,7 +41,7 @@ const earth = new THREE.Mesh(
     map: earthTexure,
   })
 );
-earth.position.set(5, 5, 1.5);
+earth.position.set(earthPos.x, earthPos.y, earthPos.z);
 scene.add(earth);
 
 earthGui
@@ -57,9 +59,9 @@ earthGui
 earthPositionGui.add(earth.position, "x").min(0).max(10).step(0.001).name("X");
 earthPositionGui.add(earth.position, "y").min(0).max(10).step(0.001).name("Y");
 earthPositionGui.add(earth.position, "z").min(0).max(10).step(0.001).name("Z");
-earthRotateGui.add(earth.rotation, "x").min(0).max(10).step(0.001).name("X");
+earthRotateGui.add(earth.rotation, "x").min(-1).max(1).step(0.001).name("X");
 // earthRotateGui.add(earth.rotation, "y").min(0).max(10).step(0.001).name("Y");
-earthRotateGui.add(earth.rotation, "z").min(0).max(10).step(0.001).name("Z");
+earthRotateGui.add(earth.rotation, "z").min(-1).max(1).step(0.001).name("Z");
 
 /**
  * Lights
@@ -106,7 +108,7 @@ whiteLightGui
   .name("POSITION Z");
 
 // orage light
-const orangeLight = new THREE.DirectionalLight("#FA4B00", 7);
+const orangeLight = new THREE.DirectionalLight("#FA4B00", 5);
 orangeLight.position.set(-10, -4, 1);
 scene.add(orangeLight);
 
@@ -134,6 +136,11 @@ orangeLightGui
   .max(10)
   .step(0.001)
   .name("POSITION Z");
+
+// mouse following light
+const followLight = new THREE.DirectionalLight("#FA4B00", 0);
+followLight.position.set(-10, -4, 2);
+scene.add(followLight);
 
 /**
  * Sizes
@@ -187,22 +194,64 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  * Animate
  */
 const timer = new Timer();
+let animStart = false;
+let earthYrotSpeed = 0.01;
 
-console.log(timer);
 const tick = () => {
   // Timer
   timer.update();
   // Update controls
   // controls.update();
 
-  //animation loop
-  earth.rotation.y = 2.5 + (Math.PI / 2) * (timer._elapsed / 3000);
+  //animation
+  if (animStart) {
+    earthPos.x < 6.5 ? (earthPos.x += 0.05) : true;
+    earthPos.y > 4.85 ? (earthPos.y -= 0.05) : true;
+    earthPos.z > 1.1 ? (earthPos.z -= 0.05) : true;
+
+    earthRot.x > -0.3 ? (earthRot.x -= 0.05) : true;
+    earthRot.z > -0.09 ? (earthRot.z -= 0.05) : true;
+
+    earth.position.set(earthPos.x, earthPos.y, earthPos.z);
+    earth.rotation.x = earthRot.x;
+    earth.rotation.z = earthRot.z;
+  }
+
+  //earth rotation animation
+  earthRot.y += earthYrotSpeed;
+  earth.rotation.y = earthRot.y;
 
   // Render
   renderer.render(scene, camera);
-
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
 };
 
 tick();
+
+//anim
+setTimeout(() => {
+  document.body.classList.add("active");
+  animStart = true;
+  earthYrotSpeed = 0.018;
+
+  orangeLight.intensity = 0.5;
+  followLight.intensity = 3;
+
+  setTimeout(() => {
+    animStart = false;
+  }, 1000);
+}, 2000);
+
+document.body.addEventListener(
+  "mousemove",
+  (e) => {
+    let x = (e.x * 5) / window.innerWidth - 2.5;
+    let y = ((e.y * 5) / window.innerHeight - 2.5) * -1;
+
+    followLight.position.x = x;
+    followLight.position.y = y;
+    console.log(x, y);
+  },
+  false
+);

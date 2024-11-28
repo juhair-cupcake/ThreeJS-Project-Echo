@@ -1,7 +1,79 @@
 body {
   margin: 0;
+  font-family: "Roboto", sans-serif;
+  color: #fff;
 }
 canvas#threeJS {
   position: fixed;
+  z-index: -1;
   inset: 0;
+}
+
+.logo {
+  position: sticky;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%);
+
+  transition: all 0.45s ease-in;
+}
+.logo > .logo-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px 10px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.45s ease-in;
+}
+.logo > .logo-wrapper > img {
+  width: 1000px;
+  transition: all 0.45s ease-in;
+}
+main {
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.45s ease-in;
+}
+
+body.active > .logo {
+  transform: translateY(0);
+  top: 0;
+  left: 0;
+}
+body.active > .logo > .logo-wrapper {
+  justify-content: flex-start;
+}
+body.active > .logo > .logo-wrapper > img {
+  width: 400px;
+}
+body.active > main {
+  opacity: 1;
+  pointer-events: unset;
+}
+
+section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px 10px;
+}
+h1 {
+  margin: 0;
+  padding: 0 0 24px;
+
+  font-size: 3.125rem;
+  line-height: 65px;
+}
+p {
+  margin: 0;
+  color: #edcabb;
+}
+
+.hero > .hero-wrapper {
+  padding: 200px 0;
+  max-width: 820px;
+}
+.hero > .hero-wrapper > p {
+  font-size: 28px;
 }
