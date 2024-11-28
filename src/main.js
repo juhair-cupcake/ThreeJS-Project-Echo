@@ -233,7 +233,7 @@ const tick = () => {
     earthPos.z = moveOn(earthPos.z, 2.5);
 
     earthRot.x = moveOn(earthRot.x, -0.5);
-    earthRot.y = moveOn(earthRot.y, 3.396);
+    earthRot.y = moveOn(earthRot.y, 3.396, 0.1);
     earthRot.z = moveOn(earthRot.z, 0);
 
     earth.position.set(earthPos.x, earthPos.y, earthPos.z);
@@ -279,21 +279,30 @@ setTimeout(() => {
     //scroll
     window.addEventListener("scroll", () => {
       if (
-        document.querySelector(".location-wrapper > h3") &&
-        document.querySelector(".location-wrapper > h3").getBoundingClientRect()
-          .bottom < window.innerHeight
+        document.querySelector("section.footer").getBoundingClientRect()
+          .bottom <= window.innerHeight
       ) {
         earthYrotSpeed = 0;
-
-        if (!animEarthPos) {
-          document.querySelector("section.footer").scrollIntoView();
-          animEarthPos = true;
-          setTimeout(() => {
-            animEarthPos = false;
-          }, 10000);
-        }
+        animEarthPos = true;
+      } else if (
+        !animEarthPos &&
+        document.querySelector(".location-wrapper > h3").getBoundingClientRect()
+          .bottom <= window.innerHeight
+      ) {
+        document
+          .querySelector("section.footer")
+          .scrollIntoView({ behavior: "smooth" });
+      } else if (
+        animEarthPos &&
+        document.querySelector(".location-wrapper > h3").getBoundingClientRect()
+          .bottom <= window.innerHeight
+      ) {
+        document
+          .querySelector("section.hero")
+          .scrollIntoView({ behavior: "smooth" });
       } else {
         earthYrotSpeed = 0.018;
+
         if (animEarthPos) {
           animEarthPos = false;
           animStart = true;
